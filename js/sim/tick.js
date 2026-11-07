@@ -38,6 +38,7 @@ function step(g) {
   updateMonsters(g);
   updateCritters(g);
   if (g.w.villages) updateVillages(g);
+  trailStep(g);
   updateFluids(g);
   for (const f of g.fx) f.life--;
   g.fx = g.fx.filter(f => f.life > 0);

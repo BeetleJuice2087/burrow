@@ -81,6 +81,7 @@ addEventListener('keydown', e => {
   else if (e.key === '-') zoomBy(-1);
   else if (e.key === 'm' || e.key === 'M') setWorld(!worldView);
   else if (e.key === 'r' || e.key === 'R') setRoute(!rd.route);
+  else if ((e.key === 't' || e.key === 'T') && replayFits()) Replay.show();
   else if (e.key === 'g' || e.key === 'G') toggleFull();
   else if (e.key === 'f' || e.key === 'F') { if (worldView) { setWorld(false); setFollow(true); } else setFollow(!follow); }
 });

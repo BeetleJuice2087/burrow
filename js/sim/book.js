@@ -12,7 +12,7 @@ const BOOK_GRIT_LINES = ['Getting good at this. Or at least still here.', 'Harde
 function bookPage(g, kind, title, text, x, y, wide) {
   const s = g.stats, j = g.m.journey, id = s.bookN = (s.bookN || 0) + 1;
   s.book = s.book || [];
-  s.book.push({id, kind, title, text, day: g.day, at: x + (j ? j.off : 0), under: inUnder(g) || undefined});
+  s.book.push({id, kind, title, text, day: g.day, t: trailTime(g), at: x + (j ? j.off : 0), under: inUnder(g) || undefined});
   if (s.book.length > BOOK_MOST) s.book.shift();
   g.snaps = g.snaps || [];
   g.snaps.push({id, x, y, wide: wide || 24, realm: g.realm || 'over'});
@@ -21,7 +21,7 @@ function bookPage(g, kind, title, text, x, y, wide) {
 function roadMark(g, kind, name, x) {
   const s = g.stats, j = g.m.journey;
   s.road = s.road || [];
-  s.road.push({kind, name, day: g.day, at: x + (j ? j.off : 0), biome: g.w.biome[x]});
+  s.road.push({kind, name, day: g.day, t: trailTime(g), at: x + (j ? j.off : 0), biome: g.w.biome[x]});
   if (s.road.length > ROAD_MOST) s.road.shift();
 }
 const BOOK_EXTRA_LINES = {night1: 'Made it to morning. Nothing ate me. I call that a win.', q_home: 'Brought the crown home. It looks odd on the shelf. Good.'};

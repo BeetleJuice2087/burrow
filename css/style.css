@@ -272,3 +272,37 @@ h3:first-child { margin-top: 0; }
 .road-mark small { display: block; overflow-wrap: anywhere; }
 .road-ruin em { color: var(--muted); }
 .road-village em { color: var(--good); }
+
+/* the replay */
+#replayBox { position: fixed; inset: 0; z-index: 30; background: var(--ink); }
+#replayBox[hidden] { display: none; }
+#replayMap { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+#replayMap:active { cursor: grabbing; }
+.replay-top { position: absolute; left: 16px; top: 14px; display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; pointer-events: none; }
+.replay-top b { font-family: var(--font-display); font-size: 18px; color: var(--lamp); }
+.replay-top span { font-size: 12px; color: var(--muted); }
+#replayCap { position: absolute; left: 50%; top: 18px; transform: translateX(-50%); max-width: 60%; padding: 6px 14px; background: var(--panel-solid); border: 1px solid var(--lamp); border-radius: 6px; color: var(--text); font-size: 14px; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+#replayCap.on { opacity: 1; }
+.replay-bar { position: absolute; left: 16px; right: 16px; bottom: 12px; display: flex; flex-direction: column; gap: 12px; }
+.replay-track { position: relative; height: 18px; border-radius: 3px; background: #262836; cursor: pointer; touch-action: none; }
+#replayFill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: linear-gradient(90deg, hsl(200 70% 40%), hsl(40 80% 50%)); pointer-events: none; }
+#replayHead { position: absolute; top: -4px; bottom: -4px; width: 3px; margin-left: -1px; background: #fff; pointer-events: none; }
+.replay-mark { position: absolute; top: 3px; width: 8px; height: 12px; margin-left: -4px; padding: 0; border: 1px solid var(--ink); border-radius: 1px; background: #e8e4f0; cursor: pointer; }
+.replay-mark:hover { transform: scale(1.5); z-index: 1; }
+.mark-ko { background: #ff6a5a; }
+.mark-camp, .mark-keep { background: var(--lamp); }
+.mark-village { background: #7fe0a0; }
+.mark-ruin { background: #b5a89a; }
+.replay-btns { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.replay-btns button { padding: 7px 12px; color: var(--text); background: var(--panel); border: 1px solid var(--line); font-family: var(--font-display); font-size: 13px; cursor: pointer; border-radius: 4px; }
+.replay-btns button[aria-pressed="true"] { background: var(--lamp); border-color: var(--lamp); color: #1a1408; }
+.replay-gap { flex: 1; }
+#replayCard { position: absolute; right: 16px; top: 14px; width: 260px; padding: 10px; background: var(--panel-solid); border: 1px solid var(--line); border-radius: 6px; display: flex; flex-direction: column; gap: 4px; }
+#replayCard[hidden] { display: none; }
+#replayCard img { width: 100%; aspect-ratio: 8 / 5; object-fit: cover; image-rendering: pixelated; border-radius: 3px; }
+#replayCard b { font-family: var(--font-display); color: var(--lamp); }
+#replayCard span { font-size: 12px; color: var(--muted); }
+#replayCard p { margin: 2px 0; font-size: 13px; }
+#replayCard div { display: flex; gap: 6px; margin-top: 4px; }
+#replayCard button { padding: 5px 9px; border: 1px solid var(--line); border-radius: 4px; color: var(--text); font-family: var(--font-display); font-size: 12px; cursor: pointer; }
+#replayOpen[hidden] { display: none; }

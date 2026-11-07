@@ -10,6 +10,7 @@ function die(g, src) {
   g.stats.deaths++;
   bookKO(g, src);
   loseGrit(g);
+  trailKO(g);
   let gx = m.x, gy = m.y;
   if (!passable(get(g, gx, gy)) || get(g, gx, gy) === T.TORCH) gy--;
   const KEEP = ['ward_key', 'glimmer', 'bow', 'wood_pick','stone_pick','iron_pick','gem_pick','wood_sword','stone_sword','iron_sword','copper_armor','iron_armor'];
