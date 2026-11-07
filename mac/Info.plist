@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleName</key><string>Burrow</string>
+  <key>CFBundleDisplayName</key><string>Burrow</string>
+  <key>CFBundleIdentifier</key><string>local.burrow.game</string>
+  <key>CFBundleExecutable</key><string>Burrow</string>
+  <key>CFBundleIconFile</key><string>Burrow</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleShortVersionString</key><string>1.0</string>
+  <key>CFBundleVersion</key><string>1</string>
+  <key>LSMinimumSystemVersion</key><string>13.3</string>
+  <key>LSApplicationCategoryType</key><string>public.app-category.simulation-games</string>
+  <key>NSHighResolutionCapable</key><true/>
+  <key>NSHumanReadableCopyright</key><string>Burrow</string>
+</dict>
+</plist>

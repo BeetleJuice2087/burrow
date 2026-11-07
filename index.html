@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Burrow</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f1018">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="game" aria-label="Side-view block world where an AI miner digs and crafts"></canvas>
+
+<div class="hud" aria-live="off">
+  <div class="brand"><h1>Burrow</h1><span class="clock"><i id="sunIcon"></i><span id="clock">Day 1 · 06:00</span></span></div>
+  <div class="bars"><div class="bar" id="hearts" aria-label="Health"></div><div class="bar" id="food" aria-label="Hunger"></div><div class="grit" title="Grit: the miner's level"><b id="gritLevel">1</b><span class="grit-bar"><i id="gritFill"></i></span></div></div>
+  <div class="where"><span>Depth <b id="depth">0 m</b></span><span id="biome">Forest</span></div>
+</div>
+
+<div id="bubble">Waking up…</div>
+<div class="toast" id="toast"></div>
+
+
+
+
+<aside class="panel" id="panel">
+  <button class="sheet-handle" id="handle" aria-label="Show or hide the panel"><span></span></button>
+  <div class="now" id="nowBox"><span class="label">Current goal</span><span class="goal" id="goal">Punch some trees</span><button class="panel-toggle" id="panelToggle" aria-label="Collapse the panel" aria-expanded="true" title="Collapse (P)"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 10l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></div>
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="plan">Plan</button>
+    <button role="tab" aria-selected="false" data-tab="pack">Pack</button>
+    <button role="tab" aria-selected="false" data-tab="recipes">Recipes</button>
+    <button role="tab" aria-selected="false" data-tab="stats">Stats</button>
+    <button role="tab" aria-selected="false" data-tab="diary">Diary</button>
+    <button role="tab" aria-selected="false" data-tab="log">Log</button>
+  </div>
+  <div class="body" id="body"></div>
+  <div class="foot"><span id="seed">World</span><span id="runtime">0:00</span><button id="bookOpen" class="link">Scrapbook<span id="bookNew" class="book-new" hidden></span></button><button id="savesOpen" class="link">Saves</button><button id="newWorld" class="link">New world</button></div>
+  <div class="confirm" id="confirm"><span>Start a fresh world? This one is gone for good.</span><input id="seedInput" type="text" maxlength="40" autocomplete="off" spellcheck="false" placeholder="Seed (leave empty for random)" aria-label="World seed"><span class="cbtns"><button class="yes" id="yes">Start over</button><button id="no">Keep this one</button></span></div>
+</aside>
+
+<div class="ending" id="savesBox" role="dialog" aria-modal="true" aria-label="Saves"><div class="end-card saves-card"></div></div>
+<div class="ending" id="bookBox" role="dialog" aria-modal="true" aria-label="Scrapbook"><div class="end-card book-card"></div></div>
+<div class="ending" id="moveBox" role="dialog" aria-modal="true" aria-label="Move on"><div class="end-card">
+  <h2>Move on?</h2>
+  <p class="end-sub">The miner packs what it can carry and walks east, and it never comes back. This home will drift off the map for good, and so will the gate, though the miner can build a new one at camp if its cinder gear wears out. Save first if you want to keep this place.</p>
+  <div class="end-actions"><button id="moveSave" class="end-go">Save, then move on</button><button id="moveGo">Move on without saving</button><button id="moveStay">Stay here</button></div>
+</div></div>
+<input id="saveFile" type="file" accept=".burrow,application/json" hidden>
+<div class="ending" id="ending" role="dialog" aria-modal="true" aria-label="The miner retires"><div class="end-card"></div></div>
+
+<div class="route-key" id="routeKey" hidden><span><i class="walk"></i>Path</span><span><i class="dig"></i>Dig</span><span><i class="build"></i>Build</span><span><i class="aim"></i>Destination</span></div>
+<div class="controls">
+  <div class="seg" role="group" aria-label="Speed">
+    <button id="pause" aria-label="Pause" aria-pressed="false"><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="3" y="2" width="3" height="10" fill="currentColor"/><rect x="8" y="2" width="3" height="10" fill="currentColor"/></svg></button>
+    <button data-speed="1" aria-pressed="true">1×</button>
+    <button data-speed="2" aria-pressed="false">2×</button>
+    <button data-speed="4" aria-pressed="false">4×</button>
+    <button data-speed="8" aria-pressed="false">8×</button>
+  </div>
+  <div class="seg" role="group" aria-label="View">
+    <button id="zoomOut" aria-label="Zoom out"><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="6" width="10" height="2" fill="currentColor"/></svg></button>
+    <button id="zoomIn" aria-label="Zoom in"><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="6" width="10" height="2" fill="currentColor"/><rect x="6" y="2" width="2" height="10" fill="currentColor"/></svg></button>
+    <button id="follow" aria-pressed="true" aria-label="Follow the miner"><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="6" y="1" width="2" height="4" fill="currentColor"/><rect x="6" y="9" width="2" height="4" fill="currentColor"/><rect x="1" y="6" width="4" height="2" fill="currentColor"/><rect x="9" y="6" width="4" height="2" fill="currentColor"/><rect x="6" y="6" width="2" height="2" fill="currentColor"/></svg><span class="lbl">Follow</span></button>
+    <button id="route" aria-pressed="false" aria-label="Show the miner's route" title="Show route (R)"><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="11" width="2" height="2" fill="currentColor"/><rect x="4" y="9" width="2" height="2" fill="currentColor"/><rect x="7" y="7" width="2" height="2" fill="currentColor"/><path d="M10.5 1l2.5 2.5L10.5 6 8 3.5z" fill="currentColor"/></svg></button>
+    <button id="world" aria-pressed="false" aria-label="Whole world view"><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="3" width="12" height="8" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="1" y="7" width="12" height="4" fill="currentColor"/></svg></button>
+    <button id="fullscreen" aria-pressed="false" aria-label="Fullscreen" title="Fullscreen (G)"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1 5V1h4M9 1h4v4M13 9v4H9M5 13H1V9" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+    <button id="sound" aria-pressed="false" aria-label="Sound"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 5h3l3-3v10L5 9H2z" fill="currentColor"/><path d="M10 5l3 4M13 5l-3 4" stroke="currentColor" stroke-width="1.5"/></svg></button>
+  </div>
+  <div class="seg" id="moveSeg" hidden><button id="moveOnBtn">Move on</button></div>
+</div>
+
+<script src="js/sim/data.js"></script>
+<script src="js/sim/worldgen.js"></script>
+<script src="js/sim/fluids.js"></script>
+<script src="js/sim/state.js"></script>
+<script src="js/sim/pathfind.js"></script>
+<script src="js/sim/creatures.js"></script>
+<script src="js/sim/miner.js"></script>
+<script src="js/sim/jobs.js"></script>
+<script src="js/sim/home.js"></script>
+<script src="js/sim/underworld.js"></script>
+<script src="js/sim/brain.js"></script>
+<script src="js/sim/diary.js"></script>
+<script src="js/sim/weather.js"></script>
+<script src="js/sim/visitors.js"></script>
+<script src="js/sim/farm.js"></script>
+<script src="js/sim/book.js"></script>
+<script src="js/sim/journey.js"></script>
+<script src="js/sim/design.js"></script>
+<script src="js/sim/camps.js"></script>
+<script src="js/sim/village.js"></script>
+<script src="js/sim/bow.js"></script>
+<script src="js/sim/blastcap.js"></script>
+<script src="js/sim/spider.js"></script>
+<script src="js/sim/grit.js"></script>
+<script src="js/sim/tick.js"></script>
+<script src="js/render/textures.js"></script>
+<script src="js/render/decor.js"></script>
+<script src="js/render/sprites.js"></script>
+<script src="js/render/icons.js"></script>
+<script src="js/render/renderer.js"></script>
+<script src="js/render/route.js"></script>
+<script src="js/render/portal.js"></script>
+<script src="js/render/wildlife.js"></script>
+<script src="js/render/cavedecor.js"></script>
+<script src="js/render/underdecor.js"></script>
+<script src="js/render/crops.js"></script>
+<script src="js/render/village.js"></script>
+<script src="js/render/weather.js"></script>
+<script src="js/ui/save.js"></script>
+<script src="js/ui/hud.js"></script>
+<script src="js/ui/panel.js"></script>
+<script src="js/ui/audio.js"></script>
+<script src="js/ui/controls.js"></script>
+<script src="js/ui/ending.js"></script>
+<script src="js/ui/saves.js"></script>
+<script src="js/ui/book.js"></script>
+<script src="js/ui/main.js"></script>
+</body>
+</html>
