@@ -166,8 +166,8 @@ function buildTiles() {
   }
   for (let f = 0; f < 4; f++) {
     const w = canvas(16, 16), wx = w.getContext('2d');
-    wx.fillStyle = 'rgba(52,108,214,0.72)'; wx.fillRect(0, 0, 16, 16);
-    wx.fillStyle = 'rgba(140,190,255,0.35)';
+    wx.fillStyle = 'rgba(52,108,214,0.42)'; wx.fillRect(0, 0, 16, 16); // see-through: what's behind and in it shows
+    wx.fillStyle = 'rgba(140,190,255,0.3)';
     for (let k = 0; k < 3; k++) wx.fillRect((k * 6 + f * 2) % 16, 5 + k * 4, 4, 1);
     TEX[T.WATER].push(w);
   }
@@ -178,7 +178,7 @@ function buildTiles() {
   const d = canvas(16, 16), dp = painter(d.getContext('2d')); speckle(dp, B.mulberry(13), DIRT, 0.18, 14); d.getContext('2d').fillStyle = 'rgba(8,6,6,0.55)'; d.getContext('2d').fillRect(0, 0, 16, 16); WALL.dirt = d;
   const s = canvas(16, 16), sp = painter(s.getContext('2d')); speckle(sp, B.mulberry(14), SAND, 0.1, 10); s.getContext('2d').fillStyle = 'rgba(30,20,10,0.5)'; s.getContext('2d').fillRect(0, 0, 16, 16); WALL.sand = s;
   const br = canvas(16, 16); br.getContext('2d').drawImage(TEX[T.STONE_BRICKS][1], 0, 0); br.getContext('2d').fillStyle = 'rgba(8,8,14,0.5)'; br.getContext('2d').fillRect(0, 0, 16, 16); WALL.bricks = br;
-  buildFurniture(); buildDecor(); buildDecorItems(); buildCrops();
+  buildFurniture(); buildDecor(); buildDecorItems(); buildCrops(); buildComforts();
 }
 
 

@@ -220,7 +220,7 @@ function switchRealm(g, to, x, y) {
     g.fx = []; g.dirty.length = 0; g.spotted = undefined;
   }
   m.x = m.px = x; m.y = m.py = y;
-  m.path = []; m.job = null; m.act = null; m.strip = null; m.veinLog = []; m.sleeping = false; m.hiding = false;
+  m.path = []; m.job = null; m.act = null; m.strip = null; m.stripDead = null; m.veinLog = []; m.sleeping = false; m.hiding = false;
   look(g, true);
 }
 
@@ -477,6 +477,7 @@ function underJob(g) {
   const out = digging ? m.underWant === undefined || cnt(m, 'raw_cinderite') >= m.underWant : done;
   const spent = g.tick - (m.tripStart || 0) > DAY * (digging ? 1.5 : 4), hungry = foodCount(m) === 0 && (m.hunger <= 8 || m.hp <= 8);
   // live off the land where there's fruit to be had
+  if (quested(m, 'q_open') && tier(m) >= P[T.GLIMMER].tier && cnt(m, 'glimmer') < 2 && !cnt(m, 'glow_broth') && scanTiles(g, [T.GLIMMER], 14, 8).length) { m.chain = ['Glimmer for glow broth']; return glimmerJob(g, 2); } // a couple from close by, for the broth
   if (!out && foodCount(m) < 3 && scanTiles(g, [T.EMBERLEAF], 30, 14).length) { m.chain = ['Pick something to eat']; return emberJob(g, cnt(m, 'emberfruit') + 5); }
   if ((m.trekFails || 0) >= 6 && aim && aim !== 'q_open' && aim !== 'q_warden' && aim !== 'q_key' && !digging) { // no way through: don't let one spot hold everything up
     m.trekFails = 0;
@@ -529,7 +530,7 @@ function underJob(g) {
     return trekJob(g, tree.x, 'the Emberwood', tree.y);
   }
   if (aim === 'q_glimmer') {
-    const want = RECIPES.ward_key.in.glimmer;
+    const want = RECIPES.ward_key.in.glimmer + 2; // two over, for glow broth
     if (cnt(m, 'glimmer') >= want) { markQuest(g, 'q_glimmer', 'Mined glimmer crystals'); return wanderJob(g); }
     if (scanTiles(g, [T.GLIMMER], 45, 20).length) return glimmerJob(g, want);
     const shard = nearestTile(g, T.GLIMMER); // it may be far overhead after a long dig: go by the crystal, not just the column

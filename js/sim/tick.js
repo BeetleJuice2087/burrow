@@ -39,6 +39,8 @@ function step(g) {
   updateCritters(g);
   if (g.w.villages) updateVillages(g);
   trailStep(g);
+  palStep(g);
+  comfortStep(g);
   updateFluids(g);
   for (const f of g.fx) f.life--;
   g.fx = g.fx.filter(f => f.life > 0);
@@ -56,7 +58,7 @@ function step(g) {
     if (m.hunger === 0) hurtMiner(g, 1, 'hunger');
   }
   if (inLava(g)) {
-    if (g.tick % 10 === 0) hurtMiner(g, 3, 'lava');
+    if (g.tick % 10 === 0 && !firewalkSaves(g)) hurtMiner(g, 3, 'lava');
     if (m.job && m.job.name !== 'escape') { m.job = null; m.path = []; if (m.act && m.act.type !== 'step') m.act = null; }
   }
   if (m.dead) return;
@@ -110,4 +112,4 @@ function describe(g) {
 }
 
 globalThis.Burrow = {B_RED, B_MIRE, B_AMBER, B_SAVANNA, W, H, TPS, DAY, T, P, ITEMS, RECIPES, GOALS, BIOMES, MON, FOOD, LOW_MON, BLAST_FUSE, newGame, step, tier, isNight, dayFrac, skyAt, isSolid, passable, cnt, armor, swordDmg, get, mulberry, hash2,
-  DUR, durLeft, equipped, armorPiece, collectionCount, COLLECTION, gritProgress, gritLevel, gritHearts, gritDigs, maxHp, PERK_DIG, campRange, makeUnderState, renewUnder, switchRealm, inUnder, moveOn, holdJourney, UNDER_BIOMES, weatherNow, cropStage};
+  DUR, durLeft, equipped, armorPiece, collectionCount, COLLECTION, gritProgress, gritLevel, gritHearts, gritDigs, maxHp, PERK_DIG, campRange, makeUnderState, renewUnder, switchRealm, inUnder, moveOn, holdJourney, setPal, UNDER_BIOMES, weatherNow, cropStage};

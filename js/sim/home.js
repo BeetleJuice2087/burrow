@@ -233,7 +233,7 @@ function homeRooms(g) {
 }
 
 // ---------- one of everything ----------
-const COLLECTION = Object.keys(RECIPES).filter(k => !/^(cinder|gate|ward|bread|baked|bow)|_arrow$/.test(k)); // the Underworld's gear has its own goals, and the farm feeds itself
+const COLLECTION = Object.keys(RECIPES).filter(k => !/^(cinder|gate|ward|bread|baked|bow)|_arrow$|^(grapple|ember_treads|silk_net|blast_charge|weathervane|trophy_shelf|map_table|rain_barrel|wind_chimes|pet_bed|kite|glow_broth|firewalk_tea|camp_stew|lucky_charm)$/.test(k)); // (the kit is made as the silk and powder turn up: kit.js) // the Underworld's gear has its own goals, and the farm feeds itself
 function collectionCount(g) { let n = 0; for (const k of COLLECTION) if (g.stats.crafted[k]) n++; return n; }
 function collectionJob(g, chain) {
   const m = g.m;
@@ -247,7 +247,7 @@ function collectionJob(g, chain) {
 }
 
 // ---------- storing spares at home ----------
-const ALWAYS_CARRY = new Set(['bow', ...ARROWS.map(a => a.id), 'ward_key', 'torch', 'bench', 'furnace', 'bed', 'door', 'chest', 'shield', 'shears', 'fishing_rod', 'bucket', 'wheat', 'wheat_seeds']);
+const ALWAYS_CARRY = new Set(['bow', ...ARROWS.map(a => a.id), 'ward_key', 'torch', 'bench', 'furnace', 'bed', 'door', 'chest', 'shield', 'shears', 'fishing_rod', 'bucket', 'wheat', 'wheat_seeds', 'grapple', 'ember_treads', 'silk_net', 'blast_charge', 'silk', 'blast_powder', 'kite', 'glow_broth', 'firewalk_tea', 'lucky_charm']);
 const BLOCK_RESERVE = {cobble: 64, dirt: 16, sand: 16, sandstone: 16};
 const USED_IN_RECIPE = new Set(); for (const k in RECIPES) for (const i in RECIPES[k].in) USED_IN_RECIPE.add(i);
 function storagePlan(g) {

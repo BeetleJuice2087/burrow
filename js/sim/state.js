@@ -40,10 +40,12 @@ function setTile(g, x, y, v) {
   if (LIGHT_TILES.has(v)) g.torches.push({x, y});
 }
 function logEvent(g, text) {
+  if (g.palTurn) text = g.palTurn.name + ': ' + text;
   g.log.push({day: g.day, tick: g.tick, text});
   if (g.log.length > 60) g.log.shift();
 }
 function milestone(g, id, label) {
+  if (g.palTurn) return;
   if (g.stats.milestones.some(s => s.id === id)) return;
   g.stats.milestones.push({id, label, day: g.day, tick: g.tick});
   logEvent(g, '★ ' + label);
@@ -164,7 +166,7 @@ function breakTile(g, x, y) {
   }
   else if (t === T.TGRASS) { if (g.rng() < 1 / 8) add(g, 'wheat_seeds', 1); }
   else if (t === T.TORCH) add(g, 'torch', 1);
-  else if (P[t].drop) add(g, P[t].drop, 1);
+  else if (P[t].drop) { add(g, P[t].drop, 1); const luck = charmLuck(g, t); if (luck) { add(g, luck, 1); g.fx.push({type: 'num', x, y: y - 0.5, text: '+1', life: 30, color: '#7aff9a'}); } }
   setTile(g, x, y, T.AIR);
   if (t === T.SPAWNER) {
     g.stats.spawners = (g.stats.spawners || 0) + 1;
@@ -259,8 +261,11 @@ function hasLogNear(g, x, y) {
   for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) if (get(g, x + dx, y + dy) === T.LOG) return true;
   return false;
 }
+// the miner's body, and the cell it is stepping into
+const palBlocksMiner = (mm, x, y) => { if (!mm || mm.dead) return false; const n = mm.act && mm.act.type === 'step' && mm.act.n; return (x === mm.x && (y === mm.y || y === mm.y - 1)) || (!!n && x === n.x && (y === n.y || y === n.y - 1)); };
 function placeBlock(g, x, y) {
   const m = g.m, torch = get(g, x, y) === T.TORCH; // a torch in the way comes down and goes back in the pack
+  if (g.palTurn && palBlocksMiner(g.palMiner, x, y)) return false; // the companion never builds into the miner
   // sand over a gap just falls away (only the miner's own body holds it up)
   const loose = !isSolid(get(g, x, y + 1)) && !(x === m.x && (y + 1 === m.y || y + 1 === m.y - 1));
   for (const k of ['dirt', 'cobble', 'sand', 'sandstone']) if (cnt(m, k) > 0 && !(k === 'sand' && loose)) { take(m, k, 1); if (torch) add(g, 'torch', 1); setTile(g, x, y, PLACE_TILE[k]); sfx(g, 'place', x, y, PLACE_TILE[k]); g.stats.placed++; return true; }

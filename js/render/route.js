@@ -30,13 +30,15 @@ Renderer.prototype.routeNow = function (g, now) {
   if (p.moving || p.far) { this.routeHeld = p; this.routeAt = now; return p; }
   return this.routeHeld && now - this.routeAt < 300 ? this.routeHeld : null;
 };
-const routeWalk = (pts, gap, phase, fn) => { // calls fn at even steps along a line
-  let left = phase;
+// calls fn at even steps along a line. Each leg's dots are measured from its own cells, so they stay put in the world:
+// on the first leg (from wherever the miner is) they count back from the cell it's stepping to, and the miner walks over them.
+// `shift` (0..1 of a gap) slides them all forward together with time, so they march along the line whatever the miner does
+const routeWalk = (pts, gap, fn, shift = 0) => {
+  const o = shift * gap;
   for (let i = 1; i < pts.length; i++) {
     const a = pts[i - 1], b = pts[i], len = Math.hypot(b.x - a.x, b.y - a.y);
-    let d = left;
-    while (d < len) { fn(a.x + (b.x - a.x) * d / len, a.y + (b.y - a.y) * d / len); d += gap; }
-    left = d - len;
+    if (!len) continue;
+    for (let d = i === 1 ? (len + o) % gap : o; d < len - 1e-6; d += gap) fn(a.x + (b.x - a.x) * d / len, a.y + (b.y - a.y) * d / len);
   }
 };
 function routeCell(ctx, x, y, s, col, fill) {
@@ -81,11 +83,11 @@ Renderer.prototype.drawRoute = function (g, now, ctx, sx, sy, ts, dpr) {
     ctx.fillStyle = ROUTE_COL.shade; ctx.fillRect(px - 1, py - 1, size + 2, size + 2);
     ctx.fillStyle = ROUTE_COL.path; ctx.fillRect(px, py, size, size);
   };
-  routeWalk(p.pts, 0.5, 0.5 - (now / 700 % 1) * 0.5, dot); // the dots march the way the miner will go
+  routeWalk(p.pts, 0.5, dot, now / 700 % 1); // the dots march the way the miner will go, on their own clock
   const aim = p.far || p.end, bob = Math.sin(now / 260) * ts * 0.08;
   if (p.far && !p.far.level) { // the rest of the way hasn't been planned yet: only the heading is known
     ctx.globalAlpha = 0.4;
-    routeWalk([p.end, p.far], 1.5, 1.5 - (now / 700 % 1) * 0.5, dot);
+    routeWalk([{x: p.end.x, y: p.end.y}, p.far], 1.5, dot, now / 2100 % 1);
     ctx.globalAlpha = 1;
   }
   const ax = sx(aim.x + 0.5), ay = sy(aim.y - 1) - ts * 0.55 + bob;
@@ -115,7 +117,7 @@ Renderer.prototype.drawRouteMap = function (g, now, ctx, ox, oy, scale, dpr) {
   const p = this.routeNow(g, now);
   if (!p) return;
   ctx.fillStyle = ROUTE_COL.path;
-  routeWalk(p.pts, Math.max(1, 3 * dpr / scale), 0, (x, y) => ctx.fillRect(ox + (x + 0.5) * scale - dpr, oy + (y - 0.5) * scale - dpr, 2 * dpr, 2 * dpr));
+  routeWalk(p.pts, Math.max(1, 3 * dpr / scale), (x, y) => ctx.fillRect(ox + (x + 0.5) * scale - dpr, oy + (y - 0.5) * scale - dpr, 2 * dpr, 2 * dpr));
   const aim = p.far || p.end;
   routePin(ctx, ox + (aim.x + 0.5) * scale, oy + (aim.y - 0.5) * scale, 4 * dpr);
 };

@@ -78,6 +78,7 @@ function writeDiary(g, day, last) {
   if (s.dayKeep) { lines.push((typeof s.dayKeep === 'string' ? 'My own design this time: a ' + s.dayKeep + '. ' : '') + diaryPick(g, DIARY_KEEP, 9)); s.dayKeep = false; }
   if (s.dayGrow) { lines.push('Added a ' + s.dayGrow + ' to the keep. It was only ever going to get bigger.'); s.dayGrow = null; }
   if (s.dayVillage) { lines.push(diaryPick(g, DIARY_VILLAGE, 19).replace('#', s.dayVillage)); s.dayVillage = null; }
+  if (s.dayPal) { lines.push(...s.dayPal.slice(0, 2)); s.dayPal = null; }
   if (s.dayRuin) { lines.push(diaryPick(g, DIARY_RUIN, 21).replace('#', s.dayRuin)); s.dayRuin = null; }
   if (s.dayLevel) { lines.push(diaryPick(g, DIARY_GRIT, 14).replace('#', s.dayLevel)); s.dayLevel = 0; }
   if (s.dayChest) { lines.push(diaryPick(g, DIARY_CHEST, 10)); s.dayChest = false; }

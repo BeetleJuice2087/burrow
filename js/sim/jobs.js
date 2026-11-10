@@ -263,7 +263,15 @@ function stripJob(g, item) {
       const V = 6;
       const fresh = V & 1 ? (x, y) => { let n = 0; for (let k = 2; k <= 8; k++) { const xx = x + dir * k; if (xx < 2 || xx >= W - 2) return false; for (let dy = -3; dy <= 2; dy++) if (!g.seen[(y + dy) * W + xx]) n++; } return n >= 10; }
         : (x, y) => { let n = 0; for (let k = 1; k <= 7; k++) { const xx = x + dir * k; if (xx < 2 || xx >= W - 2) return false; if (!g.seen[y * W + xx]) n++; } return n >= 4; };
-      const path = findPath(g, {goal: (x, y) => Math.abs(y - yy) <= (V & 1 ? 2 : 1) && dir * (x - x0) >= 2 && under(x, y) && inCampRange(g, x) && fresh(x, y), h: (x, y) => Math.max(0, 60 - dir * (x - x0)) * 0.5 + Math.abs(y - yy) * 6, maxNodes: 12000, range: 90, noPillar: !(V & 2)});
+      { const s = Math.abs(m.y - yy) <= 1 && chargeSpot(g, dir); if (s) { throwCharge(g, s); return 'run'; } } // solid rock ahead and a charge in the pack: blow it open
+      // a search from this spot that found nothing a little while ago won't find anything now: near lava each try is a big one
+      const deadKey = yy + ':' + dir + ':' + Math.round(x0 / 3) + ':' + m.y, dead = m.stripDead = m.stripDead || {}; // kept on the miner: heading back to camp starts a fresh strip
+      // and a quick look first: with no unseen rock along this row in range there's nothing for the search to find
+      let any = false;
+      for (let k = 2; k <= 90 && !any; k++) { const x = x0 + dir * k; if (x < 2 || x >= W - 2) break; if (!inCampRange(g, x)) continue; for (let y = yy - 2; y <= yy + 2 && !any; y++) if (Math.abs(y - yy) <= (V & 1 ? 2 : 1) && fresh(x, y)) any = true; }
+      if (!any) dead[deadKey] = g.tick + 1500;
+      const path = dead[deadKey] > g.tick ? null : findPath(g, {goal: (x, y) => Math.abs(y - yy) <= (V & 1 ? 2 : 1) && dir * (x - x0) >= 2 && under(x, y) && inCampRange(g, x) && fresh(x, y), h: (x, y) => Math.max(0, 60 - dir * (x - x0)) * 0.5 + Math.abs(y - yy) * 6, maxNodes: 12000, range: 90, noPillar: !(V & 2)});
+      if (!path && !(dead[deadKey] > g.tick)) { dead[deadKey] = g.tick + 1500; const ks = Object.keys(dead); if (ks.length > 40) for (const k of ks) if (dead[k] <= g.tick) delete dead[k]; }
       if (path && path.length) {
         // only count it as progress if it reaches past what this row has already covered;
         // otherwise it can pace between two dead ends (rock left unseen behind lava or water)

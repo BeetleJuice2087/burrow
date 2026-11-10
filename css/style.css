@@ -26,6 +26,10 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 button:focus-visible { outline: 2px solid var(--lamp); outline-offset: 2px; }
 
 /* HUD */
+.fps { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); left: 50%; transform: translateX(-50%); z-index: 6; padding: 4px 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; font-family: var(--font-display); font-size: 13px; color: #8fe08a; pointer-events: none; font-variant-numeric: tabular-nums; }
+.fps[hidden] { display: none; }
+.fps.mid { color: #f2c14e; } .fps.low { color: #f07a5a; }
+.seg .fps-btn { font-family: var(--font-display); font-size: 11px; letter-spacing: 0.02em; }
 .hud { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); left: max(12px, env(safe-area-inset-left, 0px)); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px 10px; display: grid; gap: 6px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); box-shadow: 0 6px 24px #0007; min-width: 196px; }
 .brand { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .brand h1 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 20px; letter-spacing: 0.04em; color: var(--lamp); line-height: 1; }

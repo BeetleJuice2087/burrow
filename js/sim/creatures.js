@@ -99,6 +99,18 @@ function entityMove(g, e, dir, pass, tall) {
 function burnUp(g, e) {
   e.hp = 0; g.fx.push({type: 'poof', x: e.x, y: e.y, life: 20}); sfx(g, 'sizzle', e.x, e.y);
 }
+// in lava: it sinks slowly, the way things sink in water, and burns a fifth of its health away each turn till it's gone
+const LAVA_SINK = 6;
+function lavaTurn(g, e) {
+  if (get(g, e.x, e.y) !== T.LAVA) return false;
+  const full = e.full || (e.full = Math.max(e.hp, 1));
+  e.hp -= Math.max(2, Math.ceil(full * 0.2)); e.hurt = 8;
+  if (e.hp <= 0) { burnUp(g, e); return true; }
+  sfx(g, 'sizzle', e.x, e.y);
+  if (!solidAt(g, e.x, e.y + 1) && e.y < H - 2) { e.from = {x: e.x, y: e.y}; e.y += 1; }
+  e.falling = false; e.moveT = LAVA_SINK;
+  return true;
+}
 function gravity(g, e, tall) {
   if (!solidAt(g, e.x, e.y + 1) && e.y < H - 2) {
     e.from = {x: e.x, y: e.y}; e.y += 1; return true;
@@ -143,13 +155,14 @@ function updateMonsters(g) {
     if (e.hurt > 0) e.hurt--;
     if (e.cd > 0) e.cd--;
     if (e.type === 'blastcap' && capFuse(g, e)) continue;
+    if (e.netted > g.tick) { e.from = null; continue; } // held in a silk net: it can only struggle
     e.moveT--;
     if (e.moveT > 0) continue;
     const spec = MON[e.type], tall = !LOW_MON[e.type];
     e.from = null;
+    if (lavaTurn(g, e)) continue;
     if (e.type === 'spider') { spiderMove(g, e); continue; }
     if (gravity(g, e, tall)) { e.moveT = 2; continue; }
-    if (get(g, e.x, e.y) === T.LAVA) { burnUp(g, e); continue; }
     const dx = m.x - e.x, dy = m.y - e.y, dist = Math.hypot(dx, dy);
     if (e.type === 'blastcap' && capThink(g, e, dx, dy, dist)) continue;
     if (m.dead || dist > (m.inv.leaf_cloak ? 14 : 26)) { // idle wander (a leaf cloak keeps it from being noticed so far off)
@@ -203,8 +216,8 @@ function updateCritters(g) {
     if (g.tick >= c.expire && Math.abs(c.x - m.x) + Math.abs(c.y - m.y) > 24) { c.hp = 0; continue; }
     c.moveT--; if (c.moveT > 0) continue;
     c.from = null;
+    if (lavaTurn(g, c)) continue;
     if (gravity(g, c, false)) { c.moveT = 2; continue; }
-    if (get(g, c.x, c.y) === T.LAVA) { burnUp(g, c); continue; }
     const dx = c.x - m.x;
     if (Math.abs(dx) < 5 && Math.abs(c.y - m.y) < 4 && !m.dead) { // flee
       const dir = dx >= 0 ? 1 : -1; c.facing = dir;

@@ -75,7 +75,8 @@ function shiftWorld(g) {
   if (g.snaps) g.snaps = []; // the page takes its pictures straight away: anything still waiting has gone
   if (g.trader) { g.trader.x -= dx; if (g.trader.x < 2) g.trader = null; }
   if (g.hutBox) { g.hutBox.x0 -= dx; g.hutBox.x1 -= dx; }
-  m.x -= dx; m.px -= dx; m.path = []; m.job = null; m.strip = null; m.lastTorch = null; m.stillX = m.x;
+  if (m.pal) { const p = m.pal; p.x -= dx; p.px -= dx; p.dig = null; if (p.step) { p.step.fx -= dx; p.step.tx -= dx; } }
+  m.x -= dx; m.px -= dx; m.path = []; m.job = null; m.strip = null; m.stripDead = null; m.lastTorch = null; m.stillX = m.x;
   w.spawn = spot(w.spawn) || {x: m.x, y: m.y};
   m.home = spot(m.home) || {x: m.x, y: m.y};
   m.bed = spot(m.bed);
@@ -148,6 +149,7 @@ function packJob(g) {
 // everything that ties the miner to the place it's leaving
 function leaveCamp(g) {
   const m = g.m, j = m.journey;
+  palDecide(g);
   j.rooms = homeRooms(g); // the buildings stay behind, walls and all
   m.campCells = null; m.growCells = null; m.buildSkip = {}; j.keepChest = null; j.keep = null;
   m.hut = false; m.hutWork = 0; m.bed = null; m.stations = []; m.farm = null; m.farmDone = false; m.farmNext = 0;
@@ -165,7 +167,7 @@ function campable(g, x) {
 }
 function makeCamp(g) {
   const m = g.m, j = m.journey;
-  m.home = {x: m.x, y: m.y}; j.stage = 'camp'; j.campDay = g.day; j.camps++;
+  m.home = {x: m.x, y: m.y}; j.stage = 'camp'; j.campDay = g.day; j.camps++; palCamp(g);
   g.stats.camps = j.camps; g.stats.dayCamp = g.w.biome[m.x]; gainGrit(g, GRIT_CAMP);
   logEvent(g, 'Made camp in the ' + BIOMES[g.w.biome[m.x]].toLowerCase());
   roadMark(g, 'camp', 'Camp ' + j.camps, m.x);
@@ -226,6 +228,8 @@ function campJob(g) {
   }
   if (!m.farmDone && !isNight(g)) { const f = farmGoal(g, chain); if (f) return go(f); }
   { const k = growJob(g, chain); if (k) return go(k); }
+  { const k = comfortJob(g); if (k) return k; }
+  { const k = kiteJob(g); if (k) return k; }
   { const c = cinderGateJob(g); if (c) return c; }
   if (tier(m) < PICK_TIER.cinder_pick && !cnt(m, 'cinder_pick')) { // it wore out on the trip: what came home can make another
     const ingots = RECIPES.cinder_pick.in.cinder_ingot;
@@ -240,6 +244,7 @@ function campJob(g) {
 }
 function leaveJob(g) {
   const m = g.m, h = m.home, j = m.journey;
+  { const t = mapTableJob(g); if (t) { m.chain = ['Break camp']; return t; } } // a last look at the map first
   if (Math.abs(m.x - h.x) > 2 || Math.abs(m.y - h.y) > 2) { m.chain = ['Break camp']; return gotoJob(g, 'Heading back to break camp', h.x, h.y, 2); }
   return {
     name: 'pack', label: 'Breaking camp',

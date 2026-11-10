@@ -73,7 +73,7 @@ function spiderRoam(g, e, dx) {
 }
 // somewhere it will walk of its own accord: on a surface, not into lava, and not out of the cave into daylight
 function spiderHaunt(g, x, y) {
-  return spiderGrip(g, x, y) && get(g, x, y) !== T.LAVA && (inUnder(g) || y > g.w.surf[x]);
+  return spiderGrip(g, x, y) && get(g, x, y) !== T.LAVA && get(g, x, y + 1) !== T.LAVA && (inUnder(g) || y > g.w.surf[x]);
 }
 // nobody about: it keeps walking along whatever it's on, round the corners from floor to wall to roof, stopping now and then
 function spiderWander(g, e) {
@@ -92,13 +92,14 @@ function spiderWander(g, e) {
 // its whole turn: it doesn't take gravity like the others, it holds on
 function spiderMove(g, e) {
   const m = g.m, spec = MON.spider;
-  if (get(g, e.x, e.y) === T.LAVA) { e.hp = 0; return; }
   if (e.falling) {
+    if (get(g, e.x, e.y + 1) === T.LAVA) { e.y++; e.moveT = 2; return; } // lava doesn't hold it up: in it goes (lavaTurn does the rest)
     if (solidAt(g, e.x, e.y + 1) || !monPass(get(g, e.x, e.y + 1))) { e.falling = false; e.side = 0; e.moveT = 6; sfx(g, 'step', e.x, e.y, T.STONE); }
     else { e.y++; e.moveT = 1; }
     return;
   }
   if (!spiderGrip(g, e.x, e.y)) { e.falling = true; return; } // whatever it held on to has been dug away
+  if (get(g, e.x, e.y + 1) === T.LAVA && !solidAt(g, e.x - 1, e.y) && !solidAt(g, e.x + 1, e.y) && !solidAt(g, e.x, e.y - 1)) { e.falling = true; return; } // only a corner to cling to, over lava: it slips in
   e.side = spiderSide(g, e.x, e.y, e.side);
   const dx = m.x - e.x, dy = m.y - e.y, dist = Math.hypot(dx, dy), sees = !m.dead && dist <= SPIDER_SEE && clearLine(g, e.x, e.y, m.x, m.y - 1, stopsShot);
   if (e.awake && (m.dead || dist > SPIDER_FORGET)) e.awake = false;

@@ -125,6 +125,14 @@ def(T.FARMLAND,'farmland',1,INF,9,null,'#5a3a22'); // the miner leaves these alo
 def(T.WHEAT,'wheat',0,INF,9,null,'#c8b04a');
 def(T.POTATO_PLANT,'potato plant',0,INF,9,null,'#5a9a3a');
 def(T.WILD_POTATO,'wild potato',0,3,0,'potato','#6aa83e');
+// home comforts (comforts.js): furniture the miner puts about its keep
+Object.assign(T, {WEATHERVANE: 103, TROPHY_SHELF: 104, MAP_TABLE: 105, RAIN_BARREL: 106, WIND_CHIMES: 107, PET_BED: 108});
+def(T.WEATHERVANE,'weathervane',0,INF,9,null,'#c88a4a');
+def(T.TROPHY_SHELF,'trophy shelf',0,INF,9,null,'#8a6036');
+def(T.MAP_TABLE,'map table',0,INF,9,null,'#b08850');
+def(T.RAIN_BARREL,'rain barrel',0,INF,9,null,'#7a5232');
+def(T.WIND_CHIMES,'wind chimes',0,INF,9,null,'#c88a4a');
+def(T.PET_BED,'pet bed',0,INF,9,null,'#a8503a');
 const isSolid = t => P[t].solid === 1;
 const passable = t => !P[t].solid && t !== T.LAVA; // the miner can wade through water
 const monPass = t => passable(t) && t !== T.DOOR && t !== T.IRON_DOOR && t !== T.FENCE_GATE;
@@ -295,8 +303,34 @@ Object.assign(RECIPES, {
   expedition_pack: {out: 1, in: {chest: 1, leaf: 4}, st: 'bench'},
   mining_lantern: {out: 1, in: {lantern: 1, iron_ingot: 2}, st: 'bench'}
 });
+// the adventuring kit (kit.js): silk comes off spiders and powder off beaten blastcaps
+Object.assign(ITEMS, {silk: 'Spider silk', blast_powder: 'Blast powder', grapple: 'Grapple line', ember_treads: 'Ember treads', silk_net: 'Silk net', blast_charge: 'Blast charge'});
+Object.assign(RECIPES, {
+  grapple: {out: 1, in: {silk: 3, iron_ingot: 2, stick: 1}, st: 'bench'},
+  ember_treads: {out: 1, in: {obsidian: 4, gold_ingot: 2}, st: 'bench'},
+  silk_net: {out: 1, in: {silk: 3}},
+  blast_charge: {out: 3, in: {blast_powder: 1, sand: 1, coal: 1}, st: 'bench'}
+});
+Object.assign(ITEMS, {weathervane: 'Weathervane', trophy_shelf: 'Trophy shelf', map_table: 'Map table', rain_barrel: 'Rain barrel', wind_chimes: 'Wind chimes', pet_bed: 'Pet bed', kite: 'Kite'});
+Object.assign(RECIPES, {
+  weathervane: {out: 1, in: {copper_ingot: 2, stick: 1}, st: 'bench'},
+  trophy_shelf: {out: 1, in: {planks: 4, gold_ingot: 1}, st: 'bench'},
+  map_table: {out: 1, in: {planks: 5, coal: 1}, st: 'bench'},
+  rain_barrel: {out: 1, in: {planks: 6, iron_nugget: 4}, st: 'bench'},
+  wind_chimes: {out: 1, in: {copper_nugget: 6, stick: 1}},
+  pet_bed: {out: 1, in: {planks: 3, leaf: 6}},
+  kite: {out: 1, in: {stick: 3, leaf: 4}}
+});
+// food and charms (kit.js): brews drunk when they're wanted, a stew for camp, and a charm that finds a little more ore
+Object.assign(ITEMS, {glow_broth: 'Glow broth', firewalk_tea: 'Firewalk tea', camp_stew: 'Camp stew', lucky_charm: 'Lucky charm'});
+Object.assign(RECIPES, {
+  glow_broth: {out: 2, in: {glimmer: 1, baked_potato: 1}, st: 'furnace'},
+  firewalk_tea: {out: 2, in: {emberfruit: 1, wheat: 1}, st: 'furnace'},
+  camp_stew: {out: 2, in: {raw_meat: 1, potato: 2, wheat: 1}, st: 'furnace'},
+  lucky_charm: {out: 1, in: {gem: 1, gold_ingot: 1}, st: 'bench'}
+});
 Object.assign(DUR, {shield: 150, shears: 200});
-const FOOD = {cooked_meat:8, cooked_fish:7, emberfruit:6, fruit_pie:7, bread:6, baked_potato:5, potato:2, golden_apple:4, apple:4, berries:3, raw_meat:2, raw_fish:2};
+const FOOD = {camp_stew:12, cooked_meat:8, cooked_fish:7, emberfruit:6, fruit_pie:7, bread:6, baked_potato:5, potato:2, golden_apple:4, apple:4, berries:3, raw_meat:2, raw_fish:2};
 const RAW_SOURCE = {coal:T.COAL, raw_copper:T.COPPER, raw_iron:T.IRON, raw_gold:T.GOLD, gem:T.GEM, raw_cinderite:T.CINDERITE, glimmer:T.GLIMMER, obsidian:T.OBSIDIAN};
 const STRIP_BAND = {coal:[52, 112], raw_copper:[66, 104], raw_iron:[78, 116], raw_gold:[98, 122], gem:[104, 123], raw_cinderite:[94, 120], obsidian:[100, 120]};
 const PICK_FOR_TIER = [null, 'wood_pick', 'stone_pick', 'iron_pick', 'gem_pick', 'reinforced_pick', 'cinder_pick'];
@@ -313,6 +347,7 @@ const BUILD_TILE = {obsidian: T.OBSIDIAN, gate_core: T.GATE, stone_bricks: T.STO
   cobble_wall: T.COBBLE_WALL, sandstone_wall: T.SANDSTONE_WALL, pressure_plate: T.PRESSURE_PLATE, button: T.BUTTON, iron_trapdoor: T.IRON_TRAPDOOR,
   bucket: T.BUCKET, boat: T.BOAT, chest_boat: T.CHEST_BOAT, expedition_pack: T.EXPEDITION_PACK, copper_torch: T.COPPER_TORCH,
   stone: T.STONE_TILE, planks: T.PLANKS, cobble: T.COBBLE, sandstone: T.SANDSTONE, door: T.DOOR, torch: T.TORCH, chest: T.CHEST};
+Object.assign(BUILD_TILE, {weathervane: T.WEATHERVANE, trophy_shelf: T.TROPHY_SHELF, map_table: T.MAP_TABLE, rain_barrel: T.RAIN_BARREL, wind_chimes: T.WIND_CHIMES, pet_bed: T.PET_BED});
 
 // ---------- rng / noise ----------
 function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }

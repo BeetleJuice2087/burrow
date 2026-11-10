@@ -206,7 +206,7 @@ function lootJob(g) {
 
 function eatJob(g, allowRaw) {
   const m = g.m;
-  const order = ['cooked_meat', 'cooked_fish', 'fruit_pie', 'bread', 'baked_potato', 'apple', 'berries'].concat(allowRaw ? ['golden_apple', 'raw_meat', 'raw_fish', 'potato'] : []);
+  const order = ['camp_stew', 'cooked_meat', 'cooked_fish', 'fruit_pie', 'bread', 'baked_potato', 'apple', 'berries'].concat(allowRaw ? ['golden_apple', 'raw_meat', 'raw_fish', 'potato'] : []);
   for (const k of order) if (cnt(m, k) > 0) return {
     name: 'eat', label: 'Eating ' + ITEMS[k].toLowerCase(),
     run(g) { m.act = {type: 'eat', t: 0, item: k}; return 'done'; }
@@ -344,7 +344,7 @@ function wanderJob(g) {
 }
 
 function inLavaAt(g, x, y) { return get(g, x, y) === T.LAVA || get(g, x, y - 1) === T.LAVA; }
-function inLava(g) { const m = g.m; return get(g, m.x, m.y) === T.LAVA || get(g, m.x, m.y - 1) === T.LAVA; }
+function inLava(g) { const m = g.m; if (kitWading(g, m.x, m.y)) return false; return get(g, m.x, m.y) === T.LAVA || get(g, m.x, m.y - 1) === T.LAVA; }
 function escapeJob(g) {
   const m = g.m;
   return {
@@ -390,8 +390,10 @@ function chooseJob(g) {
   if (m.hp <= 9 && hasFood(m) && m.hunger < 20) { const j = eatJob(g, m.hp <= 5); if (j) return j; }
   { const e = capToFlee(g), j = e && backAwayJob(g, e); if (j) return j; }
   { const e = !close || cd >= BOW_NEAR ? bowTarget(g) : null; if (e) return shootJob(g, e); } // while it's still a way off
+  { const e = netTarget(g, close, cd); if (e) return netJob(g, e); }
   if (close) return fightJob(g, close);
   if (m.hunger <= 12) { const j = eatJob(g, m.hunger <= 4); if (j) return j; }
+  { const j = drinkJob(g); if (j) return j; }
   if (inUnder(g)) return underJob(g);
   { const j = wayOutJob(g); if (j) return j; }
   if (m.hunger <= 3) { m.chain = ['Find food']; const j = foodJob(g); if (j) return j; }
@@ -421,6 +423,8 @@ function chooseJob(g) {
   { const c = []; const j = stashJob(g, c); if (j) { m.chain = c; return j; } }
   { const j = farmUpkeep(g); if (j) return j; }
   { const j = traderJob(g); if (j) { m.chain = ['See the trader']; return j; } }
+  { const j = kitJob(g); if (j) return j; }
+  if (!m.journey) { const j = comfortJob(g) || kiteJob(g); if (j) return j; }
   if (m.journey) return journeyJob(g) || wanderJob(g);
   // progression
   for (let i = 0; i < GOALS.length; i++) {

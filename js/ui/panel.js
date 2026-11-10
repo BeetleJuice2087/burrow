@@ -84,7 +84,7 @@ function statsHtml() {
     tile('Tiles travelled', s.walked) +
     tile('Torches placed', s.torches) + tile('Items stored', s.stored || 0) + tile('Spawners broken', s.spawners || 0) + tile('Underworld trips', s.underTrips || 0) +
     tile('Items crafted', crafted) + tile('Meals eaten', s.eaten) +
-    tile('Grit level', B.gritLevel(g.m)) + tile('Best Grit level', Math.max(s.gritBest || 0, B.gritLevel(g.m))) + tile('Levels lost', s.gritLost || 0) + tile('Monsters beaten', s.kills) + tile('Knockouts', s.deaths) + tile('Arrows shot', s.shots || 0) +
+    tile('Grit level', B.gritLevel(g.m)) + tile('Best Grit level', Math.max(s.gritBest || 0, B.gritLevel(g.m))) + tile('Levels lost', s.gritLost || 0) + (g.m.pal ? tile('Companion', g.m.pal.name) : '') + (s.palDug ? tile('Dug by companions', s.palDug) : '') + tile('Monsters beaten', s.kills) + tile('Knockouts', s.deaths) + tile('Arrows shot', s.shots || 0) +
     tile('Fish caught', s.fish || 0) + tile('Trades made', s.trades || 0) + (s.villages || s.ruins ? tile('Villages visited', s.villages || 0) + tile('Ruins searched', s.ruins || 0) : '') + tile('Crops harvested', s.harvested || 0) + (g.m.journey ? tile('Camps made', s.camps || 0) + tile('Rooms added', s.keepsGrown || 0) + tile('Keeps built', s.keeps || 0) + tile('Things left behind', s.leftBehind || 0) + tile('Lands crossed', s.lands || 0) + tile('Blocks east', g.m.journey.off + g.m.x - 300) : '') + tile('Gear worn out', s.broken || 0) + tile('Repairs', s.repaired || 0) +
     tile('Collection', B.collectionCount(g), '', '/ ' + B.COLLECTION.length) + '</div>' +
     '<p class="big-note">Big numbers use K, M, B, T, Qa, Qi, Sx and on up to Uvg (10^66). Hover a number for the exact value.</p>';
@@ -104,7 +104,7 @@ function statsHtml() {
 }
 // ---------- recipe book ----------
 const RECIPE_KINDS = [['all', 'All'], ['gear', 'Gear'], ['survival', 'Survival'], ['building', 'Building'], ['decor', 'Decor'], ['materials', 'Materials']];
-const RK_SURVIVAL = new Set(['torch', 'bed', 'cooked_meat', 'cooked_fish', 'bucket', 'campfire', 'golden_apple', 'lantern', 'copper_torch', 'copper_lantern', 'fruit_pie', 'leaf_cloak', 'expedition_pack', 'mining_lantern']);
+const RK_SURVIVAL = new Set(['torch', 'bed', 'cooked_meat', 'cooked_fish', 'bucket', 'campfire', 'golden_apple', 'lantern', 'copper_torch', 'copper_lantern', 'fruit_pie', 'leaf_cloak', 'expedition_pack', 'mining_lantern', 'grapple', 'ember_treads', 'silk_net', 'blast_charge']);
 const RK_MATERIALS = new Set(['planks', 'stick', 'sand', 'copper_ingot', 'iron_ingot', 'gold_ingot', 'iron_nugget', 'copper_nugget']);
 const RK_DECOR = new Set(['pressure_plate', 'button', 'sign', 'boat', 'chest_boat', 'minecart', 'smooth_sandstone', 'chiseled_sandstone', 'cut_sandstone', 'coal_block', 'copper_block', 'iron_block', 'gold_block', 'gem_block']);
 const STATION_NAME = {bench: 'Workbench', furnace: 'Furnace'};

@@ -81,7 +81,21 @@ function updateMoveOn() {
   const j = g.m.journey, show = !!g.stats.retired && !!g.stats.endSeen && !endOpen && (!!j || !B.inUnder(g)), label = j && !j.hold ? 'Stay here' : 'Move on';
   if (moveSeg.hidden === show) moveSeg.hidden = !show;
   if (moveOnBtn.textContent !== label) moveOnBtn.textContent = label;
+  palBtn.setAttribute('aria-pressed', !g.m.palOff);
+  const canWatch = show && palWatchable();
+  if (palWatch.hidden === canWatch) palWatch.hidden = !canWatch;
+  if (!canWatch && watchPal) setWatchPal(false);
 }
+// following the companion: the camera and the speech bubble go to them instead
+let watchPal = false;
+const palWatch = document.getElementById('palWatch');
+const palWatchable = () => { const p = g.m.pal; return !!p && !p.dead && !(p.mode === 'camp' && B.inUnder(g)); };
+function setWatchPal(on) {
+  watchPal = !!on && palWatchable(); palWatch.setAttribute('aria-pressed', watchPal);
+  if (watchPal && worldView) setWorld(false);
+  if (watchPal) { setFollow(true); toast('Watching ' + g.m.pal.name); }
+}
+palWatch.addEventListener('click', () => setWatchPal(!watchPal));
 // the first time means leaving home for good, so it asks. After that it's only a camp
 function askMoveOn() {
   const j = g.m.journey;
@@ -93,6 +107,12 @@ function askMoveOn() {
 }
 function goNow() { moveBox.classList.remove('show'); if (B.moveOn(g)) { saveGame(); toast('The miner is moving on'); } else toast('The miner can’t leave from here just yet'); }
 moveOnBtn.addEventListener('click', askMoveOn);
+const palBtn = document.getElementById('palBtn');
+palBtn.addEventListener('click', () => {
+  const on = !!g.m.palOff, had = g.m.pal;
+  B.setPal(g, on); saveGame(); updateMoveOn();
+  toast(on ? 'The miner is open to company' : had ? had.name + ' has said goodbye' : 'The miner will keep to itself');
+});
 document.getElementById('moveGo').addEventListener('click', goNow);
 document.getElementById('moveStay').addEventListener('click', () => moveBox.classList.remove('show'));
 document.getElementById('moveSave').addEventListener('click', () => {

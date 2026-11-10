@@ -10,6 +10,7 @@ const BOOK_GROW_LINES = ['Nobody asked for this. It looks great.', 'It keeps get
 const BOOK_GRIT_LINES = ['Getting good at this. Or at least still here.', 'Harder to kill these days. So are they.', 'My knees disagree, but the numbers are going up.'];
 
 function bookPage(g, kind, title, text, x, y, wide) {
+  if (g.palTurn) return; // the scrapbook is the miner's
   const s = g.stats, j = g.m.journey, id = s.bookN = (s.bookN || 0) + 1;
   s.book = s.book || [];
   s.book.push({id, kind, title, text, day: g.day, t: trailTime(g), at: x + (j ? j.off : 0), under: inUnder(g) || undefined});

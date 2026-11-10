@@ -6,7 +6,7 @@
 const NODES = W * H;
 const gS = new Float32Array(NODES), stampA = new Uint32Array(NODES), closedA = new Uint32Array(NODES), parentA = new Int32Array(NODES), moveA = new Uint8Array(NODES);
 let stamp = 1;
-const MOVES = ['w', 'f', 'j', 'u', 'd', 'D', 'p', 'b'];
+const MOVES = ['w', 'f', 'j', 'u', 'd', 'D', 'p', 'b', 'g'];
 function makeHeap() { return {k: [], f: []}; }
 function hpush(h, key, f) { const K = h.k, F = h.f; let i = K.length; K.push(key); F.push(f);
   while (i > 0) { const p = (i - 1) >> 1; if (F[p] <= f) break; K[i] = K[p]; F[i] = F[p]; i = p; } K[i] = key; F[i] = f; }
@@ -48,6 +48,7 @@ function findPath(g, opts) {
   const sx = m.x, sy = m.y;
   const canPillar = !opts.noPillar && !opts.noDig && blocksAvail(m) >= 3;
   const canBridge = canPillar && blocksAvail(m) - cnt(m, 'sand') >= 3; // sand can't bridge: it falls
+  const hook = !opts.noPillar && cnt(m, 'grapple') > 0;
   const maxN = opts.maxNodes || 6000, range = opts.range || 70;
   const minX = Math.max(1, sx - range), maxX = Math.min(W - 2, sx + range);
   stamp++;
@@ -81,7 +82,7 @@ function findPath(g, opts) {
     for (const d of [-1, 1]) {
       const nx = x + d;
       // walk (maybe fall)
-      const cw = cellCost(g, nx, y, tr, noDig) + cellCost(g, nx, y - 1, tr, noDig);
+      const cw = (kitWading(g, nx, y) ? 4 : cellCost(g, nx, y, tr, noDig)) + cellCost(g, nx, y - 1, tr, noDig); // ember treads: thin lava is walked through
       if (cw < INF) {
         if (solidAt(g, nx, y + 1)) relax(nx, y, 5 + cw, 0);
         else {
@@ -121,6 +122,14 @@ function findPath(g, opts) {
         const open = !solidAt(g, x - 1, y) && !solidAt(g, x + 1, y) && !solidAt(g, x - 1, y - 1) && !solidAt(g, x + 1, y - 1); // no wall to climb beside
         let drop = 0; if (open) while (drop < 16 && !solidAt(g, x, y + drop + 1)) drop++; // each block higher above the ground costs more: a last resort, not a staircase
         if (c < INF) relax(x, y - 1, (open ? 38 + Math.max(0, drop - 2) * 30 : 14) + c, 6);
+      }
+    }
+    // the grapple line: up its own open column to the first ledge beside it, two to six blocks up
+    if (hook && solidAt(g, x, y + 1) && passable(get(g, x, y - 2))) for (const d of [-1, 1]) {
+      for (let k = 2; k <= GRAPPLE_UP; k++) {
+        if (!passable(get(g, x, y - k - 1))) break;
+        const nx = x + d;
+        if (solidAt(g, nx, y - k + 1) && passable(get(g, nx, y - k)) && passable(get(g, nx, y - k - 1))) { relax(nx, y - k, 12 + 3 * k, 8); break; }
       }
     }
   }

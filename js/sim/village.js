@@ -220,6 +220,7 @@ function villageWelcome(g, v) {
   bookPage(g, 'village', v.name, 'Someone gave me a bowl of soup and a chair.', villageMid(v), v.houses[0].feet - 2, v.x1 - v.x0);
   roadMark(g, 'village', v.name, villageMid(v));
   milestone(g, 'village', 'Found a village');
+  palMeet(g, v);
   const order = VILLAGE_OFFERS.map((o, i) => [skyHash(g.seed + v.id, i), o]).sort((a, b) => a[0] - b[0]).map(q => q[1]).slice(0, 4);
   for (const [give, n, keep, get_, out] of order) {
     if (cnt(m, give) < n + keep || (get_.endsWith('_arrow') && arrowCount(m) + out > QUIVER_MAX)) continue;

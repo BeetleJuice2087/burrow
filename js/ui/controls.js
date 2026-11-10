@@ -17,7 +17,7 @@ document.getElementById('zoomOut').addEventListener('click', () => { if (!worldV
 const followBtn = document.getElementById('follow'), worldBtn = document.getElementById('world');
 function setFollow(f) { follow = f; followBtn.setAttribute('aria-pressed', f); prefs.follow = f; savePrefs(); }
 function setWorld(w) { worldView = w; worldBtn.setAttribute('aria-pressed', w); if (w) rd.updateMini(g); }
-followBtn.addEventListener('click', () => { if (worldView) { setWorld(false); setFollow(true); } else setFollow(!follow); });
+followBtn.addEventListener('click', () => { if (watchPal) { setWatchPal(false); setFollow(true); } else if (worldView) { setWorld(false); setFollow(true); } else setFollow(!follow); });
 setFollow(follow);
 worldBtn.addEventListener('click', () => setWorld(!worldView));
 // the route overlay: where the miner is going, and what it will dig and build to get there
@@ -63,6 +63,20 @@ function setSound(onNow) {
   prefs.sound = onNow; savePrefs();
 }
 soundBtn.addEventListener('click', () => setSound(!Sound.on));
+// lighting effects (shaders): on by default on computers, off on phones to spare the battery
+const fxBtn = document.getElementById('fxBtn');
+function setFx(on, say) {
+  PostFx.on = !!on; prefs.fx = PostFx.on; savePrefs();
+  if (PostFx.on && !PostFx.init()) { PostFx.on = false; fxBtn.disabled = true; fxBtn.title = 'Lighting effects aren’t available here'; if (say) toast('Lighting effects aren’t available on this device'); }
+  fxBtn.setAttribute('aria-pressed', PostFx.on); fxBtn.setAttribute('aria-label', PostFx.on ? 'Lighting effects on' : 'Lighting effects off');
+  if (say) toast(PostFx.on ? 'Lighting effects on' : 'Lighting effects off');
+}
+fxBtn.addEventListener('click', () => setFx(!PostFx.on, true));
+// the frame rate, for fun
+const fpsBtn = document.getElementById('fpsBtn');
+function setFps(on) { fpsBox.hidden = !on; fpsBtn.setAttribute('aria-pressed', !!on); prefs.fps = !!on; savePrefs(); if (on) fpsBox.textContent = '… FPS'; }
+fpsBtn.addEventListener('click', () => setFps(fpsBox.hidden));
+setFx(prefs.fx !== undefined ? prefs.fx : matchMedia('(pointer: fine)').matches);
 if (prefs.sound) { // remembered as on: start at the first tap or key press
   const wake = () => { if (prefs.sound && !Sound.on) setSound(true); removeEventListener('pointerdown', wake); removeEventListener('keydown', wake); };
   addEventListener('pointerdown', wake); addEventListener('keydown', wake);
@@ -83,7 +97,10 @@ addEventListener('keydown', e => {
   else if (e.key === 'r' || e.key === 'R') setRoute(!rd.route);
   else if ((e.key === 't' || e.key === 'T') && replayFits()) Replay.show();
   else if (e.key === 'g' || e.key === 'G') toggleFull();
-  else if (e.key === 'f' || e.key === 'F') { if (worldView) { setWorld(false); setFollow(true); } else setFollow(!follow); }
+  else if ((e.key === 'c' || e.key === 'C') && !palWatch.hidden) setWatchPal(!watchPal);
+  else if (e.key === 'e' || e.key === 'E') setFx(!PostFx.on, true);
+  else if (e.key === 'i' || e.key === 'I') setFps(fpsBox.hidden);
+  else if (e.key === 'f' || e.key === 'F') { if (watchPal) { setWatchPal(false); setFollow(true); } else if (worldView) { setWorld(false); setFollow(true); } else setFollow(!follow); }
 });
 // drag to look around, wheel to zoom
 let drag = null;

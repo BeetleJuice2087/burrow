@@ -10,7 +10,7 @@ const FARM_SOIL = new Set([T.GRASS, T.DIRT, T.SNOW, T.SAND]), PLOT_LEN = 5;
 function cropStage(g, k) {
   const c = g.w.crops && g.w.crops[k];
   if (!c) return 0;
-  const p = (g.time - c.at) / (GROW_DAYS[c.kind] * DAY);
+  const p = (g.time - c.at) / (GROW_DAYS[c.kind] * DAY) * (barrelNear(g, k % W, (k / W) | 0) ? BARREL_BOOST : 1); // a rain barrel close by waters it
   return p >= 1 ? 3 : Math.floor(p * 3);
 }
 function plotAt(g, x0) {
@@ -192,7 +192,8 @@ function kitchenJob(g) {
   if (farmOpen(g) && g.tick >= (m.farmNext || 0) && ripeCrops(g)) return null; // bring it all in first, then cook the lot
   const chain = ['Cook what came in'], fire = stationNear(g, 'furnace', 30) && cnt(m, 'coal') > 0, plot = m.farm && m.farm.plots[1];
   let j = null;
-  if (fire && cnt(m, 'raw_fish') > 0) j = need(g, 'cooked_fish', cnt(m, 'cooked_fish') + cnt(m, 'raw_fish'), chain);
+  if (fire && cnt(m, 'camp_stew') < 2 && cnt(m, 'raw_meat') >= 1 && cnt(m, 'potato') >= 2 && cnt(m, 'wheat') >= 1) j = need(g, 'camp_stew', cnt(m, 'camp_stew') + 2, ['Make a pot of camp stew']); // the best thing it cooks
+  else if (fire && cnt(m, 'raw_fish') > 0) j = need(g, 'cooked_fish', cnt(m, 'cooked_fish') + cnt(m, 'raw_fish'), chain);
   else if (fire && cnt(m, 'raw_meat') > 0) j = need(g, 'cooked_meat', cnt(m, 'cooked_meat') + cnt(m, 'raw_meat'), chain);
   else if (cnt(m, 'wheat') >= RECIPES.bread.in.wheat && stationNear(g, 'bench', 30)) j = need(g, 'bread', cnt(m, 'bread') + Math.floor(cnt(m, 'wheat') / RECIPES.bread.in.wheat), chain);
   else if (fire) {

@@ -301,6 +301,15 @@ Renderer.prototype.drawPet = function (g, ctx, sx, sy, ts) {
     p = this.pet = {realm, x: m.x - 1.5 * m.facing, y: m.y, dir: m.facing || 1, trail: [], hop: 0};
     if (B.isSolid(B.get(g, Math.round(p.x), m.y))) p.x = m.x;
   }
+  const bed = (m.sleeping || m.hiding) && petBedNear(g, m.x, m.y);
+  if (bed) { // bedtime: off to its own bed, curled up, a z now and then
+    const k = Math.min(1, dt * 3); p.x += (bed.x - p.x) * k; p.y += (bed.y - p.y) * k; p.trail = [];
+    ctx.drawImage(WILD_SPR.pet[p.dir > 0 ? 0 : 1][0], sx(p.x), sy(p.y + 0.12), ts, ts);
+    const z = (performance.now() / 1400) % 1;
+    ctx.globalAlpha = 1 - z; ctx.fillStyle = '#e8e4f4'; ctx.font = `${Math.round(ts * (0.3 + z * 0.15))}px "Pixelify Sans", monospace`;
+    ctx.fillText('z', sx(p.x + 0.7 + z * 0.3), sy(p.y - 0.1 - z * 0.6)); ctx.globalAlpha = 1;
+    return;
+  }
   const last = p.trail[p.trail.length - 1];
   if (!last || last.x !== m.x || last.y !== m.y) { p.trail.push({x: m.x, y: m.y}); if (p.trail.length > 12) p.trail.shift(); }
   let aim = null; // keep a few steps back, on a real floor that isn't filled in

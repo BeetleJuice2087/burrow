@@ -33,6 +33,7 @@ const gritHearts = lv => Math.min(PERK_MOST, Math.floor((lv + 10) / 20)), gritDi
 const maxHp = m => 20 + gritHearts(gritLevel(m)) * 2;
 const gritDig = (m, need) => need === INF ? INF : Math.max(1, Math.ceil(need * (1 - gritDigs(gritLevel(m)) * PERK_DIG)));
 function gainGrit(g, n, x, y) {
+  if (g.palTurn) return; // Grit is the miner's
   const m = g.m;
   if (m.gritLv === undefined) gritWorld(g);
   m.grit += n;

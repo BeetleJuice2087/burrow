@@ -52,10 +52,11 @@ function compactSave(o) {
 }
 function packBits(a) { const o = new Uint8Array(Math.ceil(a.length / 8)); for (let i = 0; i < a.length; i++) if (a[i]) o[i >> 3] |= 1 << (i & 7); return o; }
 function unpackBits(p, n) { const a = new Uint8Array(n); for (let i = 0; i < n; i++) a[i] = (p[i >> 3] >> (i & 7)) & 1; return a; }
-const MKEYS = ['obsidian', 'grit', 'gritLv', 'underCamp', 'underDay', 'x', 'y', 'hp', 'hunger', 'inv', 'dur', 'built', 'buildWork', 'decorCells', 'finishCells', 'storeCells', 'gateCells', 'campCells', 'growCells', 'gateTries', 'gateRetry', 'quest', 'ruinsSeen', 'homeStart', 'latched', 'gate', 'underWant', 'tripNeed', 'gateHold', 'pet', 'tradedDay', 'farm', 'farmDone', 'farmNext', 'seedNext', 'wildPotatoes', 'potatoNext', 'tripStart', 'leaveStart', 'stash', 'stashNext', 'fishDay', 'facing', 'home', 'bed', 'stations', 'journey', 'stripDir', 'sleptDay', 'hidDay', 'hut', 'hutWork', 'strip', 'thought', 'regenT', 'hungerT'];
+const MKEYS = ['pal', 'palOff', 'obsidian', 'grit', 'gritLv', 'underCamp', 'underDay', 'x', 'y', 'hp', 'hunger', 'inv', 'dur', 'built', 'buildWork', 'decorCells', 'finishCells', 'storeCells', 'gateCells', 'campCells', 'growCells', 'gateTries', 'gateRetry', 'quest', 'ruinsSeen', 'homeStart', 'latched', 'gate', 'underWant', 'tripNeed', 'gateHold', 'pet', 'tradedDay', 'farm', 'farmDone', 'farmNext', 'seedNext', 'wildPotatoes', 'potatoNext', 'tripStart', 'leaveStart', 'stash', 'stashNext', 'fishDay', 'facing', 'home', 'bed', 'stations', 'journey', 'stripDir', 'sleptDay', 'hidDay', 'hut', 'hutWork', 'strip', 'thought', 'regenT', 'hungerT'];
 function saveSnapshot() {
   const m = {};
   for (const k of MKEYS) m[k] = g.m[k];
+  if (m.pal) m.pal = Object.assign({}, m.pal, {act: null, job: null, path: [], dig: null, step: null, home: null, stations: null, journey: null, built: null});
   const deep = g.realm === 'under', over = deep ? g.other : g, under = deep ? g : g.other; // the top level is always the overworld
   m.stations = deep ? g.other.stations : g.m.stations;
   const o = {v: 1, rle: 1, gen: g.gen, seed: g.seed, tick: g.tick, time: g.time, day: g.day, t: packField(over.w.t), seen: packField(packBits(over.seen)), known: [...over.known],

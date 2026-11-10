@@ -149,12 +149,13 @@ const Sound = (function () {
     splash: (t, e, v) => { noise(t, 0.18, 'bandpass', 1300, 1, 0.3 * v, null, 500); tone(t, 0.1, 'sine', 500, 900, 0.07 * v); },
     torch: (t, e, v) => noise(t, 0.18, 'bandpass', 500, 1.5, 0.25 * v, null, 1200),
     sizzle: (t, e, v) => noise(t, 0.6, 'highpass', 4000, 0.7, 0.3 * v),
+    chime: (t, e, v) => { const notes = [1568, 1760, 2093, 2349, 2637]; for (let i = 0; i < 3; i++) { const f = notes[(Math.random() * notes.length) | 0]; tone(t + i * (0.12 + Math.random() * 0.15), 1.4, 'sine', f, f, 0.035 * (0.6 + v)); } },
     bell: (t) => { [0, 0.42].forEach((d, i) => { tone(t + d, 1.1, 'sine', 660 - i * 80, 660 - i * 80, 0.09); tone(t + d, 0.5, 'triangle', 1320 - i * 160, 1320 - i * 160, 0.03); }); },
     level: (t) => { [392, 523, 659].forEach((f, i) => tone(t + i * 0.07, 0.3, 'triangle', f, f, 0.1)); tone(t + 0.2, 0.7, 'sine', 1046, 1046, 0.06); },
     milestone: (t) => { [523, 659, 784, 1046].forEach((f, i) => { tone(t + i * 0.09, 0.5, 'sine', f, f, 0.14); tone(t + i * 0.09, 0.3, 'triangle', f * 2, f * 2, 0.03); }); }
   };
   // minimum gap between two plays of the same sound (seconds), so 8× speed doesn't turn into static
-  const GAP = {hit: 0.06, step: 0.09, break: 0.05, place: 0.06, growl: 0.4, skitter: 0.14, hiss: 0.3, coo: 0.2, sizzle: 0.3, milestone: 0.6, eat: 0.3};
+  const GAP = {hit: 0.06, step: 0.09, break: 0.05, place: 0.06, growl: 0.4, skitter: 0.14, hiss: 0.3, coo: 0.2, sizzle: 0.3, chime: 1.2, milestone: 0.6, eat: 0.3};
 
   function update(g, cam, opts) {
     if (!on || !ctx) return;
