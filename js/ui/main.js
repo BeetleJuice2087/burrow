@@ -20,14 +20,16 @@ setFps(!!prefs.fps);
 function frame(now) {
   const raw = (now - last) / 1000, dt = Math.min(0.25, raw); last = now;
   countFps(raw);
+  const simStart = performance.now(); let n = 0;
   if (!paused && !endOpen && !document.hidden) {
     acc += dt * B.TPS * speed;
     // at most about 30 ms of ticks a frame: a slow stretch slows the game a touch instead of snowballing
     // (a slow frame means more ticks next frame, which makes that frame slower still)
-    let n = 0; const t0 = performance.now();
+    const t0 = performance.now(); n = 0;
     while (acc >= 1 && n < 400) { B.step(g); acc--; n++; if (performance.now() - t0 > 30) { acc = Math.min(acc, 1); break; } }
     if (n >= 400) acc = 0;
   }
+  const simMs = performance.now() - simStart;
   // new milestones
   while (lastMs < g.stats.milestones.length) {
     const ms = g.stats.milestones[lastMs++];
@@ -54,8 +56,10 @@ function frame(now) {
   }
   rd.cam.x = Math.max(viewW / 2 - 2, Math.min(B.W - viewW / 2 + 2, rd.cam.x));
   rd.cam.y = Math.max(viewH / 2 - 14, Math.min(B.H - viewH / 2 + 1, rd.cam.y));
+  const drawStart = performance.now();
   rd.draw(g, now, {dpr, world: worldView, still: paused, rightPad: innerWidth > 860 && !panelFolded() ? 344 : 0});
   PostFx.frame(rd, cv, now, !worldView);
+  Monitor.frame(raw * 1000, simMs, performance.now() - drawStart, n, now);
   updateMoveOn();
   if (rd.boom) { rd.boom = false; if (!paused) Sound.thunder(rd.boomFar); }
   if (Sound.on) Sound.update(g, {x: g.m.px + 0.5, y: g.m.py - 1}, {paused: paused || document.hidden, speed, world: worldView}); else g.sfx.length = 0;

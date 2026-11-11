@@ -76,6 +76,7 @@ fxBtn.addEventListener('click', () => setFx(!PostFx.on, true));
 const fpsBtn = document.getElementById('fpsBtn');
 function setFps(on) { fpsBox.hidden = !on; fpsBtn.setAttribute('aria-pressed', !!on); prefs.fps = !!on; savePrefs(); if (on) fpsBox.textContent = '… FPS'; }
 fpsBtn.addEventListener('click', () => setFps(fpsBox.hidden));
+document.getElementById('fps').addEventListener('click', () => Monitor.toggle()); // the badge opens Under the hood
 setFx(prefs.fx !== undefined ? prefs.fx : matchMedia('(pointer: fine)').matches);
 if (prefs.sound) { // remembered as on: start at the first tap or key press
   const wake = () => { if (prefs.sound && !Sound.on) setSound(true); removeEventListener('pointerdown', wake); removeEventListener('keydown', wake); };
@@ -100,6 +101,7 @@ addEventListener('keydown', e => {
   else if ((e.key === 'c' || e.key === 'C') && !palWatch.hidden) setWatchPal(!watchPal);
   else if (e.key === 'e' || e.key === 'E') setFx(!PostFx.on, true);
   else if (e.key === 'i' || e.key === 'I') setFps(fpsBox.hidden);
+  else if (e.key === 'u' || e.key === 'U') Monitor.toggle();
   else if (e.key === 'f' || e.key === 'F') { if (watchPal) { setWatchPal(false); setFollow(true); } else if (worldView) { setWorld(false); setFollow(true); } else setFollow(!follow); }
 });
 // drag to look around, wheel to zoom

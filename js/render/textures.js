@@ -4,7 +4,8 @@
 const B = Burrow;
 
 // ---------- small helpers ----------
-function canvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+let canvasMade = 0; // counted for the Under the hood panel: a steady stream of new pictures is waste
+function canvas(w, h) { canvasMade++; const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
 function hex(h) { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
 function shade(rgb, f) { return 'rgb(' + rgb.map(v => Math.max(0, Math.min(255, Math.round(v * f)))).join(',') + ')'; }
 function painter(ctx) {
